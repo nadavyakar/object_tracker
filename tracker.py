@@ -42,7 +42,7 @@ if __name__ == '__main__':
     histograms = []
     img = frame_image.copy()
     if (debug):
-        cv2.imwrite('/tmp/out/{}_0_starting_frame_image_{}.jpg'.format(0, image_file_name), frame_image)
+        cv2.imwrite("/tmp/out/{}_0_starting_frame_image_{}".format(0, image_file_name), frame_image)
 
     obj_idx = 0
     calibrated_windows = []
@@ -55,27 +55,27 @@ if __name__ == '__main__':
         calibrated_windows.append(frame_class['geometry'])
         obj = frame_image[r:r+h, c:c+w]
         if (debug):
-            cv2.imwrite('/tmp/out/{}_2_obj_{}_{}.jpg", '.format(0, obj_idx, image_file_name), obj)
+            cv2.imwrite("/tmp/out/{}_2_obj_{}_{}".format(0, obj_idx, image_file_name), obj)
 
         hsv_obj = cv2.cvtColor(obj, cv2.COLOR_BGR2HSV)
         if (debug):
-            cv2.imwrite('/tmp/out/{}_3_hsv_obj_{}_{}.jpg", '.format(0, obj_idx, image_file_name), hsv_obj)
+            cv2.imwrite("/tmp/out/{}_3_hsv_obj_{}_{}".format(0, obj_idx, image_file_name), hsv_obj)
 
         mask = cv2.inRange(hsv_obj, np.array(min_color), np.array(max_color))
         histogram = cv2.calcHist([hsv_obj], [0], mask, [180], [0, 180])
         if (debug):
-            # cv2.imwrite('/tmp/out/{}_4_obj_hist_{}.jpg'.format(0, image_file_name), histogram)
-            cv2.imwrite('/tmp/out/{}_5_mask__{}_{}.jpg'.format(0, obj_idx, image_file_name), mask)
+            # cv2.imwrite("/tmp/out/{}_4_obj_hist_{}'.format(0, image_file_name), histogram)
+            cv2.imwrite("/tmp/out/{}_5_mask__{}_{}".format(0, obj_idx, image_file_name), mask)
 
         cv2.normalize(histogram, histogram, 0, 255, cv2.NORM_MINMAX)
         histograms.append(histogram)
         if (debug):
-            # cv2.imwrite('/tmp/out/{}_3_normalized_{}.jpg", '.format(0, image_file_name), frame_image)
+            # cv2.imwrite("/tmp/out/{}_3_normalized_{}".format(0, image_file_name), frame_image)
             img = cv2.rectangle(img, (c, r), (c + w, r + h), 255, 2)
             img = cv2.putText(img, str(obj_idx), (c, r - 5), cv2.FONT_HERSHEY_SIMPLEX, 1, 255, 3)
         frame_class['id']=obj_idx
         obj_idx+=1
-    cv2.imwrite('/tmp/out/{}_6_frame_box_{}.jpg", '.format(0, image_file_name), img)
+    cv2.imwrite("/tmp/out/{}_6_frame_box_{}".format(0, image_file_name), img)
 
     termination = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1)
 
@@ -86,18 +86,18 @@ if __name__ == '__main__':
             break
         image_file_name = image_file_names[frame_idx]
         if (debug):
-            cv2.imwrite('/tmp/out/{}_1_frame_image_{}.jpg", '.format(frame_idx, image_file_name),frame_image)
+            cv2.imwrite("/tmp/out/{}_1_frame_image_{}".format(frame_idx, image_file_name),frame_image)
 
         hsv_frame = cv2.cvtColor(frame_image, cv2.COLOR_BGR2HSV)
         if (debug):
-            cv2.imwrite('/tmp/out/{}_3_hsv_frame_{}.jpg", '.format(frame_idx, image_file_name), hsv_frame)
+            cv2.imwrite("/tmp/out/{}_3_hsv_frame_{}".format(frame_idx, image_file_name), hsv_frame)
 
         img = frame_image
         obj_idx = 0
         for histogram in histograms:
             backProj = cv2.calcBackProject([hsv_frame], [0], histogram, [0, 180], 1)
             if (debug):
-                cv2.imwrite('/tmp/out/{}_5_backProj_{}_{}.jpg", '.format(frame_idx, obj_idx, image_file_name),backProj)
+                cv2.imwrite("/tmp/out/{}_5_backProj_{}_{}".format(frame_idx, obj_idx, image_file_name),backProj)
             _, calibrated_windows[obj_idx] = cv2.meanShift(backProj, tuple(calibrated_windows[obj_idx]), termination)
             x, y, w, h = calibrated_windows[obj_idx]
             img = cv2.rectangle(img, (x, y), (x + w, y + h), 255, 2)
@@ -117,7 +117,7 @@ if __name__ == '__main__':
                                 (c_file + w_file, r_file + h_file), 
                                 50, 3)
         if (debug):
-            cv2.imwrite('/tmp/out/{}_6_frame_box_{}.jpg", '.format(frame_idx, image_file_name),img)
+            cv2.imwrite("/tmp/out/{}_6_frame_box_{}".format(frame_idx, image_file_name),img)
 
     with open(args[2], 'w') as frames_classes_output_file:
         json.dump(frame_classes,frames_classes_output_file)
