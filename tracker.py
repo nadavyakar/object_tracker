@@ -81,14 +81,9 @@ if __name__ == '__main__':
         obj_idx+=1
     cv2.imwrite("/tmp/out/{}_6_frame_box_{}".format(0, frame_file_names[0]), img)
 
-<<<<<<< HEAD
     termination_map = {'person':(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 1, 1),
                        'car': (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1)}
 
-=======
-    termination = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1)
-    # exit()
->>>>>>> parent of 15fc3c6... Revert "mask picking based upon thresholding the substraction of the first from last frame - works bad"
     # iterate over the input frames
     for frame_idx in range(1,len(frame_file_names)):
         vc = cv2.VideoCapture(os.path.join(args[1], frame_file_names[frame_idx]))
