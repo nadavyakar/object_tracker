@@ -25,8 +25,7 @@ if __name__ == '__main__':
     obj_idx = 0
     calibrated_windows = []
     for frame_class, min_color, max_color in zip(frame_classes_list[0]['classes'],
-                                            # [(100., 0., 200.)]+[(0.,0.,0.) for i in range(len(windows)-1)],
-                                            # [(255.,255.,255.)]+[(100.,100.,100.) for i in range(len(windows)-1)]):
+                                            # ToaDo find automaticLLy:
                                             [(100., 0., 200.),(80.,40.,40.),(20.,60.,20.),(80.,80.,0.),(20.,80.,0.),(80., 0., 20.)],
                                             [(255.,255.,255.) for i in range(len(frame_classes_list[0]['classes']))]):
         c, r, w, h = frame_class['geometry']
@@ -45,7 +44,7 @@ if __name__ == '__main__':
             # cv2.imwrite("/tmp/out/{}_4_obj_hist_{}'.format(0, frame_file_names[0]), histogram)
             cv2.imwrite("/tmp/out/{}_5_mask__{}_{}".format(0, obj_idx, frame_file_names[0]), mask)
 
-        cv2.normalize(histogram, histogram, 0, 255, cv2.NORM_MINMAX)
+        # cv2.normalize(histogram, histogram, 0, 255, cv2.NORM_MINMAX)
         histograms.append(histogram)
         if (debug):
             # cv2.imwrite("/tmp/out/{}_3_normalized_{}".format(0, frame_file_names[0]), frame_image)
@@ -55,7 +54,8 @@ if __name__ == '__main__':
         obj_idx+=1
     cv2.imwrite("/tmp/out/{}_6_frame_box_{}".format(0, frame_file_names[0]), img)
 
-    termination = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1)
+    termination_map = {'person':(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 1, 1),
+                       'car': (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1)}
 
     # iterate over the input frames
     for frame_idx in range(1,len(frame_file_names)):
@@ -76,7 +76,9 @@ if __name__ == '__main__':
             backProj = cv2.calcBackProject([hsv_frame], [0], histogram, [0, 180], 1)
             if (debug):
                 cv2.imwrite("/tmp/out/{}_5_backProj_{}_{}".format(frame_idx, obj_idx, frame_file_names[frame_idx]),backProj)
-            _, calibrated_windows[obj_idx] = cv2.meanShift(backProj, tuple(calibrated_windows[obj_idx]), termination)
+            _, calibrated_windows[obj_idx] = \
+                cv2.meanShift(backProj, tuple(calibrated_windows[obj_idx]),
+                              termination_map[frame_classes_list[frame_idx]['classes'][obj_idx]['name']])
             x, y, w, h = calibrated_windows[obj_idx]
             img = cv2.rectangle(img, (x, y), (x + w, y + h), 255, 2)
             obj_idx+=1
