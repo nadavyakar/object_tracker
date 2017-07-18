@@ -18,8 +18,13 @@ def match_tracking_to_input_rectandles(frame_classes_list, calibrated_windows, i
         # record expected tracking rectangles
         cv2.rectangle(img, (c_expected, r_expected), (c_expected + w_expected, r_expected + h_expected), 50, 3)
 
+def debug(is_debug, debug_dump_path, image, path, *args):
+    if (is_debug):
+        cv2.imwrite(os.path.join(debug_dump_path, path).format(*args), image)
+
 if __name__ == '__main__':
-    debug = False
+    is_debug = True
+    debug_dump_path = "/home/nadav/workspace/object_tracker/out/"
     args = sys.argv[1:]
     if len(args) != 3:
         print("please execute: python tracker.py tracker_input images_dir_path output_path")
@@ -36,8 +41,7 @@ if __name__ == '__main__':
     termination_map = {'person':(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 1, 1),
                        'car': (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1)}
     # gray_first_frame =  cv2.blur(cv2.cvtColor(first_frame, cv2.COLOR_BGR2GRAY), (1,1))
-    if (debug):
-        cv2.imwrite("/tmp/out/{}_starting_frame_image.jpg".format(0), first_frame)
+    debug(is_debug, debug_dump_path, first_frame, "{}_starting_frame_image.jpg", 0)
 
     # record starting coordinates for the tracking windows
     calibrated_windows = []
@@ -60,21 +64,16 @@ if __name__ == '__main__':
         obj_histogram = cv2.calcHist([hsv_obj], [0], obj_mask, [180], [0, 180])
         histograms.append(obj_histogram)
 
-        if (debug):
-            cv2.imwrite("/tmp/out/{}_first_obj_{}.jpg".format(0, obj_idx), first_obj)
-            cv2.imwrite("/tmp/out/{}_last_obj_{}.jpg".format(0, obj_idx), last_obj)
-            cv2.imwrite("/tmp/out/{}_gray_first_{}.jpg".format(0, obj_idx), gray_first_obj)
-            cv2.imwrite("/tmp/out/{}_gray_last_{}.jpg".format(0, obj_idx), gray_last_obj)
-            cv2.imwrite("/tmp/out/{}_mask_{}.jpg".format(0, obj_idx), obj_mask)
-            cv2.imwrite("/tmp/out/{}_hsv_obj_{}.jpg".format(0, obj_idx), hsv_obj)
-
+        debug(is_debug, debug_dump_path, first_obj, "{}_first_obj_{}.jpg", 0, obj_idx)
+        debug(is_debug, debug_dump_path, last_obj, "{}_last_obj_{}.jpg", 0, obj_idx)
+        debug(is_debug, debug_dump_path, gray_first_obj, "{}_gray_first_{}.jpg", 0, obj_idx)
+        debug(is_debug, debug_dump_path, gray_last_obj, "{}_gray_last_{}.jpg", 0, obj_idx)
+        debug(is_debug, debug_dump_path, obj_mask, "{}_mask_{}.jpg", 0, obj_idx)
+        debug(is_debug, debug_dump_path, hsv_obj, "{}_hsv_obj_{}.jpg", 0, obj_idx)
         c, r, w, h = frame_class['geometry']
         cv2.putText(cv2.rectangle(first_frae_with_rectangles, (c, r), (c + w, r + h), 255, 2),
                     str(obj_idx), (c, r - 5), cv2.FONT_HERSHEY_SIMPLEX, 1, 255, 3)
-
-    if (debug):
-        cv2.imwrite("/tmp/out/{}_frame_box.jpg".format(0), first_frae_with_rectangles)
-
+    debug(is_debug, debug_dump_path, first_frae_with_rectangles, "{}_frame_box.jpg", 0)
 
     # iterate over the input frames
     for frame_idx in range(1,len(frame_expected_names)):
@@ -92,13 +91,10 @@ if __name__ == '__main__':
                               termination_map[frame_classes_list[frame_idx]['classes'][obj_idx]['name']])
             x, y, w, h = calibrated_windows[obj_idx]
             frame = cv2.rectangle(frame, (x, y), (x + w, y + h), 255, 2)
-            if (debug):
-                cv2.imwrite("/tmp/out/{}_backProj_{}.jpg".format(frame_idx, obj_idx), backProj)
+            debug(is_debug, debug_dump_path, backProj, "{}_backProj_{}.jpg", frame_idx, obj_idx)
         match_tracking_to_input_rectandles(frame_classes_list, calibrated_windows, frame)
-        if (debug):
-            cv2.imwrite("/tmp/out/{}_hsv_frame.jpg".format(frame_idx), hsv_frame)
-            cv2.imwrite("/tmp/out/{}_frame_box.jpg".format(frame_idx), frame)
-
+        debug(is_debug, debug_dump_path, hsv_frame, "{}_hsv_frame.jpg", frame_idx)
+        debug(is_debug, debug_dump_path, frame, "{}_frame_box.jpg", frame_idx)
 
     with open(args[2], 'w') as frames_classes_output_expected:
-        json.dump(frame_classes_list,frames_classes_output_expected)
+        json.dump(frame_classes_list,frames_classes_output_expected, indent=1)
