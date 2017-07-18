@@ -41,7 +41,7 @@ if __name__ == '__main__':
         # calc mask for each obj by identifying the moving object inside the starting boundries of each obj
         first_obj = first_frame[r:r+h, c:c+w]
         hsv_obj = cv2.cvtColor(first_obj, cv2.COLOR_BGR2HSV)
-        obj_histogram = cv2.calcHist([hsv_obj], [2], None, [255], [0, 255])
+        obj_histogram = cv2.calcHist([hsv_obj], [2], None, [10], [0, 255])
         cv2.normalize(obj_histogram, obj_histogram, 0, 255, cv2.NORM_MINMAX)
         histograms.append(obj_histogram)
     # iterate over the input frames
@@ -53,7 +53,7 @@ if __name__ == '__main__':
             break
         hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         for obj_idx in range(len(frame_classes_list[frame_idx]['classes'])):
-            backProj = cv2.calcBackProject([hsv_frame], [0], histograms[obj_idx], [0, 180], 1)
+            backProj = cv2.calcBackProject([hsv_frame], [2], histograms[obj_idx], [0, 255], 1)
             prev_frame_window_from_file = tuple(frame_classes_list[frame_idx-1]['classes'][obj_idx]['geometry'])
             _, calibrated_windows[obj_idx] = cv2.meanShift(backProj, prev_frame_window_from_file, termination)
         match_tracking_to_input_rectandles(frame_classes_list, calibrated_windows, frame, obj_correct_hits)
